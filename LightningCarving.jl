@@ -25,7 +25,7 @@ function make_lightning(width, height)
     light_color = RGB{N0f8}(0.729,0.78,0.835)
     base_color = RGB{N0f8}(0.024,0.059,0.231)
 
-    img = fill(base_color, height, width)
-    img .+= (light_color-base_color).*(init.>0)
+    img = fill(base_color, width, height)
+    img .+= (light_color-base_color).*(init'.>0)
     return img
 end
