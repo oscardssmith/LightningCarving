@@ -1,4 +1,4 @@
-using Plots
+using Images
 
 @views function carve_seam(data)
     T = typeof(data)
@@ -19,7 +19,13 @@ using Plots
     return data
 end
 
-init = rand(1000, 1000)'
+n = 1000
+init = rand(UInt8, n, n)'
 carve_seam(init)
-init[end,end] = -.1
-heatmap(init)
+
+
+light_color = RGB{N0f8}((0xBB,0xC8,0xD6)./256...)
+base_color = RGB{N0f8}((0x06,0x0F,0x3B)./256...)
+
+im = fill(base_color, n, n)
+im .+= (light_color-base_color).*(init.>0)
