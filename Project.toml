@@ -1,0 +1,4 @@
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
+GLFW = "f7f18e0c-5ee9-5ccd-a5bf-e8befd85ed98"
