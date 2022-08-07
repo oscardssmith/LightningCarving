@@ -19,13 +19,23 @@ using Images
     return data
 end
 
-function make_lightning(width, height)
-    init = rand(width, height)'
-    carve_seam(init)
+function make_lightning(width, height, start_pt, end_pts)
+    noise = rand(width, height)'
+    noise[reverse(start_pt)...] = -100_000
+    bolts = zeros(width, height)'
+    for end_pt in end_pts
+        row_bounds = end_pt[2]:start_pt[2]
+        tmp_noise = copy(noise[row_bounds, :])
+        tmp_noise[1, end_pt[1]] = -100_000
+        carve_seam(tmp_noise)
+        bolts[row_bounds, :] .+= tmp_noise
+        noise[row_bounds, :] .-= .05*tmp_noise
+    end
+    
     light_color = RGB{N0f8}(0.729,0.78,0.835)
     base_color = RGB{N0f8}(0.024,0.059,0.231)
 
     img = fill(base_color, width, height)
-    img .+= (light_color-base_color).*(init'.>0)
+    img .+= (light_color-base_color).*(bolts'.>0)
     return img
 end

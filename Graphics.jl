@@ -5,10 +5,12 @@ include("util.jl")
 include("LightningCarving.jl")
 
 
+GLFW.Init()
 width =500
 height =1000
 
 window = GLFW.CreateWindow(width, height, "GLFW.jl")
+
 GLFW.MakeContextCurrent(window)
 GLFW.ShowWindow(window)
 GLFW.SetWindowSize(window, width, height)
@@ -75,17 +77,17 @@ glVertexAttribPointer(textureAttribute, 2, GL_FLOAT, false, 4*sizeof(GLfloat), C
 glEnableVertexAttribArray(positionAttribute)
 glEnableVertexAttribArray(textureAttribute)
 
+# Loop until the user closes the window
+
 
 i=0
 mouse_coords = (0,0)
 mouse_down = false
 #push!(a, (5,6))
 
-startpoint = (0,0)
 endpoints = Tuple{Int, Int}[]
 
 function mouse_button_callback(window, button, action, mods)
-    global startpoint
     global mouse_down
     global endpoints
     println(action)
@@ -93,9 +95,6 @@ function mouse_button_callback(window, button, action, mods)
     if button == GLFW.MOUSE_BUTTON_LEFT
         if action == GLFW.PRESS
             println("left click")
-            coords = GLFW.GetCursorPos(window)
-            startpoint = (Int(coords.x), Int(coords.y))
-            println(startpoint)
             mouse_down = true
         end
         if action == GLFW.RELEASE
@@ -114,13 +113,10 @@ function mouse_button_callback(window, button, action, mods)
 
 end
 
-
 GLFW.SetMouseButtonCallback(window, mouse_button_callback);
-
 
 while !GLFW.WindowShouldClose(window)
     global i += 1
-    global startpoint
     global endpoints
     global mouse_down
 	# Render here
@@ -129,8 +125,11 @@ while !GLFW.WindowShouldClose(window)
 
     #lightning_points = Tuple{Int, Int}[]
     #push!(lightning_points, mouse_coords)
-    if mouse_down && isempty(endpoints)
-	    lightning = make_lightning(width, height)
+    @show mouse_down, endpoints
+    if mouse_down && !isempty(endpoints)
+        coords = GLFW.GetCursorPos(window)
+        startpoint = (Int(coords.x), Int(coords.y))
+	    lightning = make_lightning(width, height, startpoint, endpoints)
 	    glBindTexture(GL_TEXTURE_2D, texture);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -144,4 +143,5 @@ while !GLFW.WindowShouldClose(window)
 	# Poll for and process events
 	GLFW.PollEvents()
 end
+
 GLFW.DestroyWindow(window)
