@@ -19,13 +19,13 @@ using Images
     return data
 end
 
-n = 1000
-init = rand(UInt8, n, n)'
-carve_seam(init)
+function make_lightning(width, height)
+    init = rand(width, height)'
+    carve_seam(init)
+    light_color = RGB{N0f8}(0.729,0.78,0.835)
+    base_color = RGB{N0f8}(0.024,0.059,0.231)
 
-
-light_color = RGB{N0f8}((0xBB,0xC8,0xD6)./256...)
-base_color = RGB{N0f8}((0x06,0x0F,0x3B)./256...)
-
-im = fill(base_color, n, n)
-im .+= (light_color-base_color).*(init.>0)
+    img = fill(base_color, height, width)
+    img .+= (light_color-base_color).*(init.>0)
+    return img
+end
