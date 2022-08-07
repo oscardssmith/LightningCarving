@@ -38,5 +38,5 @@ function draw_lightning(width, height, start_pt, end_pts)
 
     img = draw_empty(width, height)
     img .+= (light_color-base_color).*(bolts'.>0)
-    return img[end:-1:begin, :]
+    return img[:, end:-1:begin]
 end

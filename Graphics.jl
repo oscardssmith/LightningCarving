@@ -129,11 +129,13 @@ while !GLFW.WindowShouldClose(window)
     if mouse_down && !isempty(endpoints)
         coords = GLFW.GetCursorPos(window)
         startpoint = (Int(coords.x), Int(coords.y))
-	    lightning = make_lightning(width, height, startpoint, endpoints)
-	    glBindTexture(GL_TEXTURE_2D, texture);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
-        glGenerateMipmap(GL_TEXTURE_2D);
+        lightning = draw_lightning(width, height, startpoint, endpoints)
+    else
+        lightning = draw_empty(width,height)
     end
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
 	# Draw our triangle
 	glDrawArrays(GL_TRIANGLES, 0, 6)
