@@ -5,12 +5,10 @@ include("util.jl")
 include("LightningCarving.jl")
 
 
-GLFW.Init()
 width =500
 height =1000
 
 window = GLFW.CreateWindow(width, height, "GLFW.jl")
-
 GLFW.MakeContextCurrent(window)
 GLFW.ShowWindow(window)
 GLFW.SetWindowSize(window, width, height)
@@ -76,29 +74,67 @@ glVertexAttribPointer(positionAttribute, 2, GL_FLOAT, false, 4*sizeof(GLfloat), 
 glVertexAttribPointer(textureAttribute, 2, GL_FLOAT, false, 4*sizeof(GLfloat), C_NULL+2*sizeof(GLfloat))
 glEnableVertexAttribArray(positionAttribute)
 glEnableVertexAttribArray(textureAttribute)
-# Loop until the user closes the window
-
-	glBindTexture(GL_TEXTURE_2D, texture);
-	lightning = make_lightning(width, height)
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
-    glGenerateMipmap(GL_TEXTURE_2D);
 
 
-
-# Loop until the user closes the window
 i=0
+mouse_coords = (0,0)
+mouse_down = false
+#push!(a, (5,6))
+
+startpoint = (0,0)
+endpoints = Tuple{Int, Int}[]
+
+function mouse_button_callback(window, button, action, mods)
+    global startpoint
+    global mouse_down
+    global endpoints
+    println(action)
+    println(button)
+    if button == GLFW.MOUSE_BUTTON_LEFT
+        if action == GLFW.PRESS
+            println("left click")
+            coords = GLFW.GetCursorPos(window)
+            startpoint = (Int(coords.x), Int(coords.y))
+            println(startpoint)
+            mouse_down = true
+        end
+        if action == GLFW.RELEASE
+            println("released")
+            mouse_down = false
+        end
+    end
+    if button == GLFW.MOUSE_BUTTON_RIGHT
+        if action == GLFW.PRESS
+            println("right click")
+            coords = GLFW.GetCursorPos(window)
+
+            push!(endpoints, (Int(coords.x), Int(coords.y)))
+        end
+    end
+
+end
+
+
+GLFW.SetMouseButtonCallback(window, mouse_button_callback);
+
 
 while !GLFW.WindowShouldClose(window)
     global i += 1
+    global startpoint
+    global endpoints
+    global mouse_down
 	# Render here
 	glClearColor(0.0, 0.0, 0.0, 1.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 
+    #lightning_points = Tuple{Int, Int}[]
+    #push!(lightning_points, mouse_coords)
+    if mouse_down && isempty(endpoints)
+	lightning = make_lightning(width, height, startpoint, endpoints)
 	glBindTexture(GL_TEXTURE_2D, texture);
-	lightning = make_lightning(width, height)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
     glGenerateMipmap(GL_TEXTURE_2D);
-
+    end
 
 	# Draw our triangle
 	glDrawArrays(GL_TRIANGLES, 0, 6)
@@ -108,5 +144,4 @@ while !GLFW.WindowShouldClose(window)
 	# Poll for and process events
 	GLFW.PollEvents()
 end
-
 GLFW.DestroyWindow(window)
