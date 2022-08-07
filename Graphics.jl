@@ -124,16 +124,16 @@ while !GLFW.WindowShouldClose(window)
     global endpoints
     global mouse_down
 	# Render here
-	glClearColor(0.0, 0.0, 0.0, 1.0)
+	glClearColor(0.024, 0.059, 0.231, 1.0)
 	glClear(GL_COLOR_BUFFER_BIT)
 
     #lightning_points = Tuple{Int, Int}[]
     #push!(lightning_points, mouse_coords)
     if mouse_down && isempty(endpoints)
-	lightning = make_lightning(width, height, startpoint, endpoints)
-	glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
-    glGenerateMipmap(GL_TEXTURE_2D);
+	    lightning = make_lightning(width, height)
+	    glBindTexture(GL_TEXTURE_2D, texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
+        glGenerateMipmap(GL_TEXTURE_2D);
     end
 
 	# Draw our triangle
