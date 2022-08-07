@@ -5,10 +5,12 @@ include("util.jl")
 include("LightningCarving.jl")
 
 
+GLFW.Init()
 width =500
 height =1000
 
 window = GLFW.CreateWindow(width, height, "GLFW.jl")
+
 GLFW.MakeContextCurrent(window)
 GLFW.ShowWindow(window)
 GLFW.SetWindowSize(window, width, height)
@@ -75,6 +77,8 @@ glVertexAttribPointer(textureAttribute, 2, GL_FLOAT, false, 4*sizeof(GLfloat), C
 glEnableVertexAttribArray(positionAttribute)
 glEnableVertexAttribArray(textureAttribute)
 
+# Loop until the user closes the window
+
 
 i=0
 mouse_coords = (0,0)
@@ -129,7 +133,8 @@ while !GLFW.WindowShouldClose(window)
 
     #lightning_points = Tuple{Int, Int}[]
     #push!(lightning_points, mouse_coords)
-    if mouse_down && isempty(endpoints)
+    @show mouse_down, endpoints, startpoint
+    if mouse_down && !isempty(endpoints)
 	lightning = make_lightning(width, height, startpoint, endpoints)
 	glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, lightning);
@@ -144,4 +149,5 @@ while !GLFW.WindowShouldClose(window)
 	# Poll for and process events
 	GLFW.PollEvents()
 end
+
 GLFW.DestroyWindow(window)
