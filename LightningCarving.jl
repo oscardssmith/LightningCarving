@@ -1,5 +1,9 @@
 using Images
 
+function argranddiff(strength, args)
+    return argmin(args .+ strength .* rand.()) - (length(args)+1) ÷ 2
+end
+
 function compute_costs(data)
     T = typeof(data)
     data[:, 1] .= Inf
@@ -12,15 +16,29 @@ function compute_costs(data)
     return data
 end
 
-function carve_seam(data)
-    seam = argmin(data[1, :])
-    for i in 1:size(data,1)
-        seam += argmin((data[i, seam-1], data[i, seam], data[i, seam+1])) - 2
-        data[i, begin:(seam-1)] .= 0
-        data[i, seam] = 1
-        data[i, (seam+1):end] .= 0
+function carve_seam(data, start_pt)
+    pty, startx = start_pt
+    output = zeros(reverse(size(data))...)'
+    bolts = Set{Int}(startx)
+    new_bolts = Set{Int}()
+    while !isempty(bolts)
+        empty!(new_bolts)
+        for ptx in bolts
+            if data[pty, ptx] > 0
+                continue
+            end
+            output[pty, ptx] = 1
+            newx = ptx + argranddiff(20, (data[pty, ptx-1], data[pty, ptx], data[pty, ptx+1]))
+            if rand() < pty^2*1e-7
+                newdx = argmin((data[pty, newx-1], data[pty, newx+1]))*2 - 3
+                push!(new_bolts, newx + newdx)
+            end
+            push!(new_bolts, newx)
+        end
+        pty += 1
+        bolts, new_bolts = new_bolts, bolts
     end
-    return data
+    return output
 end
 
 const base_color = RGB{N0f8}(0.024,0.059,0.231)
@@ -32,14 +50,15 @@ function draw_lightning(width, height, start_pt, end_pts)
     end_pts = reverse.(end_pts)
     noise = rand(width, height)'
     
-    noise[start_pt...] = -100_000
     for end_pt in end_pts
         noise[end_pt...] = -100_000
     end
     compute_costs(noise)
-    carve_seam(noise)
+    #display(heatmap(noise))
+    #return draw_empty(width, height)
+    bolts = carve_seam(noise, start_pt)
 
     img = draw_empty(width, height)
-    img .+= (light_color-base_color).*(noise'.>0)
+    img .+= (light_color-base_color).*(bolts'.>0)
     return img[:, end:-1:begin]
 end
